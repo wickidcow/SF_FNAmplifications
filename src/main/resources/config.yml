@@ -1,17 +1,15 @@
-# Boolean toggle whether you want to receive new updates everytime your server restart if a new update is released.
-# If set to "false" you will not receive new updates and need to manually update it yourself.
-auto-update: true
+# FN Amplifications - Slimefun Legacy Edition
+# Target: Minecraft 1.21.11+ / Paper 26.2 and Paper-derived servers.
 
-# Use 1.17 items (such as amethyst, copper, calcite, etc) as some recipes for FN Machinery Items
-# This will only work if server is running 1.17 and value is set to true
+# Retained for compatibility with existing installations.
+# On modern servers this controls whether the newer-material recipes are enabled.
 New-Recipe-Integration: true
 
-# Armor effect validator, the time to update the armor effects in seconds (i.e FN Gears of Friction permanent effects)
-# For now the chestplate only has a permanent effect at level 30
+# Armor effect validator interval in seconds.
 armor-update-period: 10
 
-# Enable or disable modules of the addon
-# Sub-categories will be removed from the guide upon disabling 
+# Enable or disable addon modules.
+# Disabled categories are removed from the Slimefun guide.
 Enable-Machineries: true
 Enable-Material-Generators: true
 Enable-Gems: true
@@ -23,9 +21,8 @@ Enable-Staffs: true
 Enable-Quivers: true
 Enable-Misc: true
 
-# Allow material generators to break over time
+# Allow material generators to break over time.
 Enable-Mat-Gen-Break-Over-Time: true
-# Allow material generators to drop broken variant only on block break
+
+# Drop the broken generator variant when a material generator is broken.
 Enable-Mat-Gen-Broken-Drop: true
-
-
