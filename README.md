@@ -1,71 +1,106 @@
-# :part_alternation_mark: FN Amplifications
+# SF_FNAmplifications
 
-<div align="center">
+**FN Amplifications for modern Slimefun servers.**
 
-![bStats Servers](https://img.shields.io/bstats/servers/13219)
-![bStats Players](https://img.shields.io/bstats/players/13219)
+This repository is a community-maintained continuation of **FN-FAL113's FN Amplifications**, updated for the current Slimefun ecosystem while preserving the addon's existing content, item IDs, recipes, and progression wherever possible.
 
-</div>
+## Compatibility
 
-A slimefun addon that adds different types of items and more content for your server! From solar panels, machines, block breakers, gears, staffs and more!
-More awaits ingame for the players to try and craft for themselves. It pars with InfinityXpansion and LiteXpansion level of difficulty in terms
-of crafting. Come and explore FN's Amplifications! 
+| Component | Target |
+| --- | --- |
+| Minecraft | **1.21.11+** |
+| Server | **Paper 26.2** primary |
+| Paper forks | Supported when they remain Paper API compatible (Purpur and similar forks) |
+| Java | **25** |
+| Slimefun | **Slimefun Legacy** primary |
+| Secondary Slimefun target | Slimefun United compatibility is CI-tested |
 
-Addon supports 1.17.x, 1.18.x, 1.19.x, 1.20.x and 1.21.x minecraft versions
+> Folia uses a different scheduling model from traditional Paper servers and is not claimed as supported unless a release explicitly says so.
 
-## :bulb: Features
-- **PowerXpansion** - 12 new power generators with holograms (toggle-able) which integrates with LiteXpansion's items as recipes!
-- **Solar Panels** - 8 solar panels for power hungry minds during day only
-- **Material Generators** - Clay, Warped Nylium, Dirt generator and more! 
-- **Machineries** - Electric machine downgrader, condenser, compressor, recycler and transformers
-- **Metal Scraps** - Obtain metal scrap from downgrading machines using the electric machine downgrader
-                     and use the scraps for crafting FN components that is needed in machineries
-- **Electric Block Breaker** - Can be toggled in side the machine gui to break with or without silk touch!
-- **20+ sets of Staffs** - From area of effect clouds, moving entities, and many more, check them out!
-- **11 sets of Mystery Sticks** - PVP/PVE sticks, these will consume xp levels by chance per use and best for op pvp!
-- **25+ sets of Gems** - Drag and drop these magical gems into your weapons, armors and tools for extra abilities and bonuses!
-- **Quivers** - Normal and Spectral quivers that can store more arrows saving up spaces in your inventory
-- **FN Gears** - Level up the gears to receive bonus attributes and enchants
-- **FN Hoe** - Soil/till land and harvest crops in a 5x5 square area, can also auto replant!
-- **FN Block Rotator** - Rotate or flip blocks like terracotta, stairs, doors, slabs and many more!
-- **FN Electric Jukebox** - Jukeboxes that can play or traverse music disc in the disc slots gui and can auto play after one has finished playing, ranging from 3 to 12 slots you never have to worry about manually changing each disc!
-- **FN Auto Ladder** - Automatically places a ladder with a max of 8 blocks from below and above
-- **FN Orient Pearl** - Teleport your entity while riding them (horses, etc) with this pearl!
-- **FN Throwable Torch** - Right click to throw this torch in a target location, gets auto placed if it hits a block!
-- **and more coming anytime soon!**
+## What FN Amplifications adds
 
-## :arrow_down: Download from build page with auto updates
-### [Download Official Jar](https://blob.build/project/FNAmplifications)
+FN Amplifications is a large Slimefun expansion focused on machinery, power, utilities, equipment, PvE/PvP toys, and progression systems.
 
-## ⏯️ Tutorial by Boomer_1 covering this addon
-More has changed since this video was released meaning more items and content since the past few months! 
-[![Click to watch video](http://i3.ytimg.com/vi/tXuXoYmx65M/hqdefault.jpg)](https://www.youtube.com/watch?v=tXuXoYmx65M)
+- **PowerXpansion** generators and solar generators
+- **Material Generators** for renewable resources
+- **Machinery** including compressors, condensers, recyclers, transformers, and machine downgrading
+- **Electric Block Breaker** with configurable behavior
+- **20+ staffs** with utility, combat, movement, and area effects
+- **11 Mystery Sticks** for high-powered PvE/PvP effects
+- **25+ Gems** that add special abilities to weapons, armor, and tools
+- **Quivers** and upgraded quivers
+- **FN Gear** progression and bonus attributes
+- **FN Hoe** area tilling/harvesting and auto-replant support
+- **FN Block Rotator**
+- **FN Electric Jukebox** variants
+- **FN Auto Ladder**
+- **FN Orient Pearl**
+- **FN Throwable Torch**
+- Metal scraps, custom components, multiblocks, and more
 
-### :computer: Everything is configurable in terms of Power Rates, Buffer, Capacity, Tick Rates, Staff max uses and more
-Most of the stuffs inside ```/plugins/FNAmplifications``` folder are configurable.
- 
-Each major category has its own configurable settings. 
+## Slimefun Legacy edition
 
-You can change them if you think they need balancing or for several reasons 
+The maintained fork focuses on keeping the original addon usable on modern servers without changing established Slimefun IDs unnecessarily.
 
-### :running: Head over to SF Addon Community Server for feedbacks 
-<p>
-  <a href="https://discord.gg/slimefun">
-    <img src="https://discordapp.com/api/guilds/565557184348422174/widget.png?style=banner3" alt="Discord Invite"/>
-  </a>
-  <a href="https://discord.gg/SqD3gg5SAU">
-    <img src="https://discordapp.com/api/guilds/809178621424041997/widget.png?style=banner3" alt="Discord Invite"/>
-  </a>
-</p>
+Current maintenance goals include:
 
-## 💖 Support the Project/Dev
-I develop stuff for free with dedication and hard work. Sharing this project with fellow minecraft gamers/server owners or giving it a star is a huge sign of appreciation!</br>
-Donations are welcome but not required. 💖<br/>
-<a href="https://www.paypal.com/paypalme/fnfal113" target=_blank>
-  <img src="https://raw.githubusercontent.com/stefan-niedermann/paypal-donate-button/master/paypal-donate-button.png" alt="Donate with PayPal" width="40%" />
-</a>
+- Minecraft **1.21.11+** compatibility
+- Paper **26.2** as the primary build/runtime target
+- Compatibility with API-compatible Paper forks
+- Slimefun Legacy as the primary Slimefun implementation
+- Slimefun United compile compatibility checks
+- Java 25 builds
+- Removal of archived BlobBuild/updater infrastructure
+- Modern GitHub Actions builds and raw JAR releases
+- Safer scheduler usage on modern Paper servers
 
-## :label: Credits
-Waleks for SMG based generators<br>
-Minecraft-Heads for the head textures used by the addon:<br>
-[Visit MC Heads Site](https://minecraft-heads.com/)
+## Installation
+
+1. Install a supported Paper 26.2 server or compatible Paper fork.
+2. Install **Slimefun Legacy**.
+3. Download `SF_FNAmplifications4.2.5.jar` from this repository's Releases page.
+4. Place the JAR in your server's `plugins` folder.
+5. Restart the server.
+
+**Optional:** Vault may be installed for integrations that use it.
+
+## Updating an existing FN Amplifications server
+
+Back up your server before replacing any addon JAR. This fork intentionally keeps existing FN Amplifications Slimefun IDs intact wherever possible so existing player items and placed machines can continue to resolve after an upgrade.
+
+Do not run two FN Amplifications JARs at the same time.
+
+## Configuration
+
+FN Amplifications creates its configuration under:
+
+`plugins/FNAmplifications/`
+
+Power rates, buffers, machine behavior, gear settings, generator settings, staff behavior, and module toggles remain configurable.
+
+## Builds and releases
+
+CI validates the addon against the current **Slimefun Legacy** source and also performs a compatibility compile against **Slimefun United**. Release builds are published as a **raw JAR**, not a ZIP.
+
+Release artifact naming:
+
+`SF_FNAmplifications<version>.jar`
+
+## Credits
+
+- **FN_FAL113** — original FN Amplifications creator and project author
+- **Waleks** — SimpleMaterialGenerators-based generator work credited by upstream
+- **Minecraft-Heads** — head textures used by the addon
+- The Slimefun community and maintainers who kept the ecosystem alive
+
+This fork is maintained independently and is not an official continuation by the original author.
+
+## License
+
+FN Amplifications is distributed under the **GNU General Public License v3.0**. See [`LICENSE`](LICENSE) for the full license text.
+
+## Issues
+
+For bugs specific to this maintained fork, use this repository's issue tracker:
+
+https://github.com/wickidcow/SF_FNAmplifications/issues
