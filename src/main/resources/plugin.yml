@@ -1,27 +1,27 @@
 name: FNAmplifications
 version: '${project.version}'
 main: ne.fnfal113.fnamplifications.FNAmplifications
-api-version: 1.17
-authors: [ FN_FAL113 ]
-description: Explore plethora of in-game items from machines, tools, pvp and many more!
-website: https://github.com/FN-FAL113
+api-version: '1.21'
+authors: [ FN_FAL113, wickidcow ]
+description: Slimefun Legacy continuation of FN Amplifications for Minecraft 1.21.11+ and Paper 26.2.
+website: https://github.com/wickidcow/SF_FNAmplifications
 depend: [ Slimefun ]
 softdepend:
   - SimpleMaterialGenerators
   - Vault
 commands:
   fngear:
-    description: command for checking player worn FN Gears progress
+    description: Check worn FN Gear progression.
     default: true
     usage: /<command>
   fnshockwavetest:
-    description: command for testing shockwave effect from shockwave gem
+    description: Test the Shockwave Gem effect.
     default: op
     usage: /<command>
 permissions:
   fngear.levelupgears:
-    description: for levelling up player worn FN Gears
+    description: Allows FN Gear level progression.
     default: op
   fnshockwave.test:
-    description: for testing shockwave shockwave effect from shockwave gem
+    description: Allows testing the Shockwave Gem effect.
     default: op
