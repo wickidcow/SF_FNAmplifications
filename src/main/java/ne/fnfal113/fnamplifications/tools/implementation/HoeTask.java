@@ -37,7 +37,6 @@ public class HoeTask {
         
         MAT.addAll(Tag.FLOWERS.getValues());
         MAT.addAll(Tag.SMALL_FLOWERS.getValues());
-        MAT.addAll(Tag.TALL_FLOWERS.getValues());
         MAT.addAll(Tag.SAPLINGS.getValues());
     }
 
