@@ -3,7 +3,6 @@ package ne.fnfal113.fnamplifications;
 import javax.annotation.Nonnull;
 
 import io.github.thebusybiscuit.slimefun4.api.SlimefunAddon;
-import io.github.bakedlibs.dough.updater.BlobBuildUpdater;
 
 import ne.fnfal113.fnamplifications.config.ConfigManager;
 import ne.fnfal113.fnamplifications.gears.commands.GearCommands;
@@ -33,39 +32,35 @@ public final class FNAmplifications extends JavaPlugin implements SlimefunAddon 
         new Metrics(this, 13219);
 
         getLogger().info("************************************************************");
-        getLogger().info("*         FN Amplifications - Created by FN_FAL113         *");
-        getLogger().info("*             From machines, custom items to PvP           *");
-        getLogger().info("*               https://discord.gg/SqD3gg5SAU              *");
+        getLogger().info("*        FN Amplifications - Slimefun Legacy Edition       *");
+        getLogger().info("*             Original project by FN_FAL113                *");
+        getLogger().info("*          Minecraft 1.21.11+ / Paper 26.2 target          *");
         getLogger().info("************************************************************");
 
         getConfig().options().copyDefaults();
         saveDefaultConfig();
 
-        // instantiate vault integration
         setVaultIntegration(this);
-
-        // setup items
         FNAmpItemSetup.INSTANCE.init();
-
         registerCommands();
-        getServer().getScheduler().runTaskTimerAsynchronously(this, new ArmorEquipRunnable(), 0L, getConfig().getInt("armor-update-period") * 20L);
 
-        if(getConfig().getBoolean("auto-update", true) && getDescription().getVersion().startsWith("Dev - ")) {
-            new BlobBuildUpdater(this, getFile(), "FNAmplifications").start();
-        }
+        // ArmorEquipRunnable reads and updates Bukkit player state, so keep it on
+        // the server thread for Paper and Paper-derived servers.
+        long period = Math.max(1L, getConfig().getLong("armor-update-period", 10L)) * 20L;
+        getServer().getScheduler().runTaskTimer(this, new ArmorEquipRunnable(), 0L, period);
     }
 
     @Override
     public void onDisable() {
         Bukkit.getScheduler().cancelTasks(FNAmplifications.getInstance());
-
-        getLogger().log(Level.INFO, "Cancelled any running task that exist");
+        getLogger().log(Level.INFO, "Cancelled FN Amplifications tasks");
     }
 
     public void registerCommands() {
-        Objects.requireNonNull(getCommand("fngear")).setExecutor(new GearCommands());
-
-        getCommand("fnshockwavetest").setExecutor(new ShockwaveTest());
+        Objects.requireNonNull(getCommand("fngear"), "fngear command is missing from plugin.yml")
+            .setExecutor(new GearCommands());
+        Objects.requireNonNull(getCommand("fnshockwavetest"), "fnshockwavetest command is missing from plugin.yml")
+            .setExecutor(new ShockwaveTest());
     }
 
     @Nonnull
@@ -76,7 +71,7 @@ public final class FNAmplifications extends JavaPlugin implements SlimefunAddon 
 
     @Override
     public String getBugTrackerURL() {
-        return "https://github.com/FN-FAL113/FN-FAL-s-Amplifications/issues";
+        return "https://github.com/wickidcow/SF_FNAmplifications/issues";
     }
 
     public ConfigManager getConfigManager() {
@@ -98,5 +93,4 @@ public final class FNAmplifications extends JavaPlugin implements SlimefunAddon 
     public static VaultIntegration getVaultIntegration() {
         return vaultIntegration;
     }
-
 }
