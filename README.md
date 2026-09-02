@@ -30,9 +30,9 @@ Folia uses a different scheduler/threading model from traditional Paper servers.
 
 ## Download
 
-### Latest release: 4.2.5
+### Latest release: 4.2.6
 
-**Raw JAR:** [`SF_FNAmplifications4.2.5.jar`](https://github.com/wickidcow/SF_FNAmplifications/releases/download/v4.2.5/SF_FNAmplifications4.2.5.jar)
+**Raw JAR:** [`SF_FNAmplifications4.2.6.jar`](https://github.com/wickidcow/SF_FNAmplifications/releases/download/v4.2.6/SF_FNAmplifications4.2.6.jar)
 
 All releases are available on the [GitHub Releases page](https://github.com/wickidcow/SF_FNAmplifications/releases).
 
@@ -117,6 +117,10 @@ Before replacing an older FN Amplifications build:
 
 This fork intentionally preserves established Slimefun IDs wherever possible so existing player items and placed machines continue to resolve normally after an upgrade.
 
+## 4.2.6 startup hotfix
+
+Paper 26.2 uses version strings such as `26.2.build.121-stable`. Older FN Amplifications compatibility code attempted to parse the word `build` as a number while loading `VersionedMaterial`, which prevented the plugin from enabling. Version 4.2.6 removes that obsolete parser and directly uses the modern material names guaranteed by the 1.21.11+ support baseline.
+
 ## Configuration
 
 Configuration is stored under:
@@ -135,7 +139,7 @@ FN Amplifications is built with Maven and Java 25.
 mvn clean verify
 ```
 
-The maintained CI workflow additionally builds against the current **Slimefun Legacy** source and performs a compatibility compile against **Slimefun United**.
+The maintained CI workflow additionally builds against the current **Slimefun Legacy** source and performs a compatibility compile against **Slimefun United**. Maven verification also includes a regression test for compatibility-material class initialization.
 
 Successful release builds publish a raw JAR rather than wrapping it in a ZIP archive.
 

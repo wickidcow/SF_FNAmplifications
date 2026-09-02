@@ -6,7 +6,7 @@
 
     <groupId>ne.fnfal113</groupId>
     <artifactId>FNAmplifications</artifactId>
-    <version>4.2.5</version>
+    <version>4.2.6</version>
     <packaging>jar</packaging>
 
     <name>FNAmplifications</name>
@@ -72,6 +72,13 @@
             <artifactId>bstats-bukkit</artifactId>
             <version>3.2.1</version>
             <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

@@ -12,8 +12,8 @@ permissions:
   contents: write
 
 env:
-  RELEASE_VERSION: "4.2.5"
-  OUTPUT_NAME: "SF_FNAmplifications4.2.5.jar"
+  RELEASE_VERSION: "4.2.6"
+  OUTPUT_NAME: "SF_FNAmplifications4.2.6.jar"
 
 jobs:
   compatibility:
@@ -121,7 +121,7 @@ jobs:
           if-no-files-found: error
 
   release:
-    name: Publish 4.2.5 raw JAR
+    name: Publish 4.2.6 raw JAR
     needs: compatibility
     if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/') || github.ref_name == github.event.repository.default_branch
     runs-on: ubuntu-latest
@@ -155,9 +155,15 @@ jobs:
           NOTES_FILE="release-notes.md"
 
           cat > "$NOTES_FILE" <<'EOF'
-          # SF_FNAmplifications 4.2.5 — Slimefun Legacy Edition
+          # SF_FNAmplifications 4.2.6 — Paper 26.2 Startup Hotfix
 
-          FN Amplifications has been modernized for the current Slimefun Legacy ecosystem while preserving the original addon's content and established Slimefun IDs wherever possible.
+          This hotfix fixes FN Amplifications failing during startup on Paper 26.2 before item registration could complete.
+
+          ## Fixed
+          - Fixed `ExceptionInInitializerError` from `VersionedMaterial` on Paper 26.2.
+          - Removed the obsolete Bukkit version-string parser that attempted to parse `build` as an integer from Paper versions such as `26.2.build.121-stable`.
+          - FN Amplifications now uses `Material.SHORT_GRASS` directly because this maintained fork targets Minecraft 1.21.11+ only.
+          - Added a regression test that loads the compatibility material class during Maven verification.
 
           ## Compatibility
           - Minecraft 1.21.11+
@@ -167,16 +173,8 @@ jobs:
           - Slimefun Legacy primary
           - Slimefun United compatibility compile validated in CI
 
-          ## Modernization
-          - Replaced the old Spigot 1.21.1 build target with the Paper 26.2 API.
-          - Removed the archived BlobBuild/Dough auto-updater integration.
-          - Updated the build and release pipeline to the Slimefun Legacy addon style.
-          - Switched player armor-effect maintenance back to the server thread for safe Bukkit/Paper state access.
-          - Updated plugin metadata, support links, configuration comments, and project documentation.
-          - Raw release artifact: `SF_FNAmplifications4.2.5.jar`.
-
-          ## Upgrade note
-          Back up your server before replacing the previous FN Amplifications JAR. Do not run two FN Amplifications builds at the same time.
+          ## Upgrade
+          Replace `SF_FNAmplifications4.2.5.jar` with `SF_FNAmplifications4.2.6.jar` while the server is stopped. Do not run both JARs together.
 
           Original FN Amplifications by FN_FAL113. This is an independent community-maintained continuation.
           EOF
