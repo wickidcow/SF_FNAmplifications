@@ -6,6 +6,7 @@ on:
     tags: ['v*']
   pull_request:
     branches: ['**']
+    types: [opened, synchronize, reopened, ready_for_review]
   workflow_dispatch:
 
 permissions:
@@ -27,6 +28,9 @@ jobs:
     steps:
       - name: Checkout FN Amplifications
         uses: actions/checkout@v6
+
+      - name: Verify FN Doctor quiver reconciliation
+        run: python3 scripts/verify_doctor_quiver.py .
 
       - name: Set up Java 25
         uses: actions/setup-java@v5

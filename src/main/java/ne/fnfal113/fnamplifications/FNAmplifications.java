@@ -5,6 +5,7 @@ import javax.annotation.Nonnull;
 import io.github.thebusybiscuit.slimefun4.api.SlimefunAddon;
 
 import ne.fnfal113.fnamplifications.config.ConfigManager;
+import ne.fnfal113.fnamplifications.diagnostics.LegacyDoctorBridge;
 import ne.fnfal113.fnamplifications.gears.commands.GearCommands;
 import ne.fnfal113.fnamplifications.gears.runnables.ArmorEquipRunnable;
 import ne.fnfal113.fnamplifications.integrations.VaultIntegration;
@@ -42,6 +43,7 @@ public final class FNAmplifications extends JavaPlugin implements SlimefunAddon 
 
         setVaultIntegration(this);
         FNAmpItemSetup.INSTANCE.init();
+        LegacyDoctorBridge.register(this);
         registerCommands();
 
         // ArmorEquipRunnable reads and updates Bukkit player state, so keep it on
@@ -52,6 +54,7 @@ public final class FNAmplifications extends JavaPlugin implements SlimefunAddon 
 
     @Override
     public void onDisable() {
+        LegacyDoctorBridge.unregister(this);
         Bukkit.getScheduler().cancelTasks(FNAmplifications.getInstance());
         getLogger().log(Level.INFO, "Cancelled FN Amplifications tasks");
     }
