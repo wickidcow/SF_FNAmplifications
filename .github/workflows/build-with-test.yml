@@ -142,7 +142,7 @@ jobs:
           test -s "target/${OUTPUT_NAME}"
           cp "target/${OUTPUT_NAME}" "dist/${OUTPUT_NAME}"
           jar tf "dist/${OUTPUT_NAME}" | grep -Fxq 'plugin.yml'
-          unzip -p "dist/${OUTPUT_NAME}" plugin.yml | grep -Fq "version: ${RELEASE_VERSION}"
+          unzip -p "dist/${OUTPUT_NAME}" plugin.yml | grep -Eq "^version: '?${RELEASE_VERSION}'?$"
           python3 - <<'PY'
           import pathlib, struct, zipfile
           jar = pathlib.Path('dist/SF_FNAmplifications4.2.7.jar')
