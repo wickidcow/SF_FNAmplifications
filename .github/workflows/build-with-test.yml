@@ -13,8 +13,8 @@ permissions:
   contents: write
 
 env:
-  RELEASE_VERSION: "4.2.6"
-  OUTPUT_NAME: "SF_FNAmplifications4.2.6.jar"
+  RELEASE_VERSION: "4.2.7"
+  OUTPUT_NAME: "SF_FNAmplifications4.2.7.jar"
 
 jobs:
   compatibility:
@@ -83,26 +83,55 @@ jobs:
           java-version: '25'
           cache: maven
 
-      - name: Verify Minecraft 1.21.11+ / Paper 26.2
+      - name: Resolve Slimefun coordinate
+        id: sf
         shell: bash
         run: |
           set -euo pipefail
           if [[ "${{ matrix.slimefun }}" == "legacy" ]]; then
-            SF_GROUP="com.github.slimefun"
-            SF_ARTIFACT="Slimefun"
-            SF_VERSION="FNAMPLIFICATIONS-LEGACY-SNAPSHOT"
+            echo 'group=com.github.slimefun' >> "$GITHUB_OUTPUT"
+            echo 'artifact=Slimefun' >> "$GITHUB_OUTPUT"
+            echo 'version=FNAMPLIFICATIONS-LEGACY-SNAPSHOT' >> "$GITHUB_OUTPUT"
           else
-            SF_GROUP="io.github.slimefun_united"
-            SF_ARTIFACT="slimefun-united"
-            SF_VERSION="$(mvn -q -f .deps/Slimefun-United/pom.xml help:evaluate -Dexpression=project.version -DforceStdout)"
+            VERSION="$(mvn -q -f .deps/Slimefun-United/pom.xml help:evaluate -Dexpression=project.version -DforceStdout)"
+            echo 'group=io.github.slimefun_united' >> "$GITHUB_OUTPUT"
+            echo 'artifact=slimefun-united' >> "$GITHUB_OUTPUT"
+            echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
           fi
 
-          echo "Testing against $SF_GROUP:$SF_ARTIFACT:$SF_VERSION on Paper 26.2+"
-          mvn -B clean verify \
-            -Dpaper.version='[26.2.build,)' \
-            -Dslimefun.groupId="$SF_GROUP" \
-            -Dslimefun.artifactId="$SF_ARTIFACT" \
-            -Dslimefun.version="$SF_VERSION"
+      - name: Verify Paper 1.21.11 release floor
+        if: matrix.slimefun == 'legacy'
+        run: >-
+          mvn -B clean verify
+          -Dpaper.version=1.21.11-R0.1-SNAPSHOT
+          -Dslimefun.groupId=${{ steps.sf.outputs.group }}
+          -Dslimefun.artifactId=${{ steps.sf.outputs.artifact }}
+          -Dslimefun.version=${{ steps.sf.outputs.version }}
+
+      - name: Verify Paper 26.2 primary
+        run: >-
+          mvn -B clean verify
+          -Dpaper.version=26.2.build.112-stable
+          -Dslimefun.groupId=${{ steps.sf.outputs.group }}
+          -Dslimefun.artifactId=${{ steps.sf.outputs.artifact }}
+          -Dslimefun.version=${{ steps.sf.outputs.version }}
+
+      - name: Verify Paper 26.3 alpha
+        run: >-
+          mvn -B clean verify
+          -Dpaper.version=26.3-rc-3.build.1-alpha
+          -Dslimefun.groupId=${{ steps.sf.outputs.group }}
+          -Dslimefun.artifactId=${{ steps.sf.outputs.artifact }}
+          -Dslimefun.version=${{ steps.sf.outputs.version }}
+
+      - name: Rebuild universal release JAR from Paper 1.21.11
+        if: matrix.slimefun == 'legacy'
+        run: >-
+          mvn -B clean package
+          -Dpaper.version=1.21.11-R0.1-SNAPSHOT
+          -Dslimefun.groupId=${{ steps.sf.outputs.group }}
+          -Dslimefun.artifactId=${{ steps.sf.outputs.artifact }}
+          -Dslimefun.version=${{ steps.sf.outputs.version }}
 
       - name: Stage raw release JAR
         if: matrix.slimefun == 'legacy'
@@ -113,6 +142,21 @@ jobs:
           test -s "target/${OUTPUT_NAME}"
           cp "target/${OUTPUT_NAME}" "dist/${OUTPUT_NAME}"
           jar tf "dist/${OUTPUT_NAME}" | grep -Fxq 'plugin.yml'
+          unzip -p "dist/${OUTPUT_NAME}" plugin.yml | grep -Fq "version: ${RELEASE_VERSION}"
+          python3 - <<'PY'
+          import pathlib, struct, zipfile
+          jar = pathlib.Path('dist/SF_FNAmplifications4.2.7.jar')
+          max_major = 0
+          with zipfile.ZipFile(jar) as zf:
+              for name in zf.namelist():
+                  if name.endswith('.class'):
+                      data = zf.read(name)[:8]
+                      if data[:4] == b'\xca\xfe\xba\xbe':
+                          max_major = max(max_major, struct.unpack('>H', data[6:8])[0])
+          print(f'{jar}: maximum class major version {max_major}')
+          if max_major > 65:
+              raise SystemExit('JAR contains classes newer than Java 21 bytecode')
+          PY
           sha256sum "dist/${OUTPUT_NAME}"
 
       - name: Upload raw JAR artifact
@@ -125,7 +169,7 @@ jobs:
           if-no-files-found: error
 
   release:
-    name: Publish 4.2.6 raw JAR
+    name: Publish 4.2.7 raw JAR
     needs: compatibility
     if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/') || github.ref_name == github.event.repository.default_branch
     runs-on: ubuntu-latest
@@ -140,14 +184,6 @@ jobs:
           name: ${{ env.OUTPUT_NAME }}
           path: dist
 
-      - name: Verify release JAR
-        shell: bash
-        run: |
-          set -euo pipefail
-          test -s "dist/${OUTPUT_NAME}"
-          jar tf "dist/${OUTPUT_NAME}" | grep -Fxq 'plugin.yml'
-          sha256sum "dist/${OUTPUT_NAME}"
-
       - name: Publish GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
@@ -156,36 +192,11 @@ jobs:
           set -euo pipefail
           TAG="v${RELEASE_VERSION}"
           JAR="dist/${OUTPUT_NAME}"
-          NOTES_FILE="release-notes.md"
-
-          cat > "$NOTES_FILE" <<'EOF'
-          # SF_FNAmplifications 4.2.6 — Paper 26.2 Startup Hotfix
-
-          This hotfix fixes FN Amplifications failing during startup on Paper 26.2 before item registration could complete.
-
-          ## Fixed
-          - Fixed `ExceptionInInitializerError` from `VersionedMaterial` on Paper 26.2.
-          - Removed the obsolete Bukkit version-string parser that attempted to parse `build` as an integer from Paper versions such as `26.2.build.121-stable`.
-          - FN Amplifications now uses `Material.SHORT_GRASS` directly because this maintained fork targets Minecraft 1.21.11+ only.
-          - Added a regression test that loads the compatibility material class during Maven verification.
-
-          ## Compatibility
-          - Minecraft 1.21.11+
-          - Paper 26.2 primary target
-          - API-compatible Paper forks such as Purpur
-          - Java 25
-          - Slimefun Legacy primary
-          - Slimefun United compatibility compile validated in CI
-
-          ## Upgrade
-          Replace `SF_FNAmplifications4.2.5.jar` with `SF_FNAmplifications4.2.6.jar` while the server is stopped. Do not run both JARs together.
-
-          Original FN Amplifications by FN_FAL113. This is an independent community-maintained continuation.
-          EOF
-
+          test -s "$JAR"
+          NOTES="FNAmplifications 4.2.7 keeps the Paper 26.2 startup/VersionedMaterial hotfix and Doctor quiver reconciliation, restores a Paper 1.21.11 / Java 21 universal release baseline, and adds explicit Paper 26.3 alpha compatibility validation. Slimefun Legacy remains primary and Slimefun United remains compile-validated."
           if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             gh release upload "$TAG" "$JAR" --clobber --repo "$GITHUB_REPOSITORY"
-            gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --title "SF_FNAmplifications ${RELEASE_VERSION}" --notes-file "$NOTES_FILE"
+            gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --title "SF_FNAmplifications ${RELEASE_VERSION}" --notes "$NOTES"
           else
-            gh release create "$TAG" "$JAR" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title "SF_FNAmplifications ${RELEASE_VERSION}" --notes-file "$NOTES_FILE"
+            gh release create "$TAG" "$JAR" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title "SF_FNAmplifications ${RELEASE_VERSION}" --notes "$NOTES"
           fi
