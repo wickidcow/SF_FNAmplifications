@@ -4,6 +4,8 @@ import ne.fnfal113.fnamplifications.FNAmplifications;
 
 import net.md_5.bungee.api.ChatColor;
 
+import org.bukkit.Effect;
+
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
