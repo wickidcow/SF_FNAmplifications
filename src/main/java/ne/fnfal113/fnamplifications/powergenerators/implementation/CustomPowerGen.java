@@ -27,7 +27,7 @@ import io.github.thebusybiscuit.slimefun4.core.handlers.BlockUseHandler;
 import io.github.thebusybiscuit.slimefun4.core.networks.energy.EnergyNetComponentType;
 import io.github.thebusybiscuit.slimefun4.utils.LoreBuilder;
 
-import me.mrCookieSlime.CSCoreLibPlugin.Configuration.Config;
+import com.xzavier0722.mc.plugin.slimefun4.storage.controller.ASlimefunDataContainer;
 import me.mrCookieSlime.Slimefun.api.BlockStorage;
 
 import ne.fnfal113.fnamplifications.FNAmplifications;
@@ -120,8 +120,8 @@ public class CustomPowerGen extends SlimefunItem implements HologramOwner, Energ
     }
 
     @Override
-    public int getGeneratedOutput(@Nonnull Location l, @Nonnull Config data) {
-        final int stored = getCharge(l);
+    public int getGeneratedOutput(@Nonnull Location l, @Nonnull ASlimefunDataContainer data) {
+        final long stored = getChargeLong(l, data);
 
         // for first server boot up, cache location and hologram status per generator
         if(!HOLO_CACHE.containsKey(l)){
@@ -133,16 +133,16 @@ public class CustomPowerGen extends SlimefunItem implements HologramOwner, Energ
             }
         } else {
             if(HOLO_CACHE.get(l)) {
-                String charge = getCharge(l) <= 0 ? Utils.colorTranslator("&8" + getCharge(l)) : Utils.colorTranslator("&a" + getCharge(l));
+                String charge = stored <= 0 ? Utils.colorTranslator("&8" + stored) : Utils.colorTranslator("&a" + stored);
                 updateHologram(l.getBlock(), Utils.colorTranslator("&eStored &a⚡: " + charge));
             }
         }
 
-        return stored < getCapacity() ? getGeneratingAmount(l.getBlock(), l.getWorld()) : 0;
+        return stored < getCapacityLong() ? getGeneratingAmount(l.getBlock(), l.getWorld()) : 0;
     }
 
     @Override
-    public boolean willExplode(@Nonnull Location l, @Nonnull Config data) {
+    public boolean willExplode(@Nonnull Location l, @Nonnull ASlimefunDataContainer data) {
         return false;
     }
 
