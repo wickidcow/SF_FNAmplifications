@@ -12,7 +12,7 @@ import io.github.thebusybiscuit.slimefun4.libraries.dough.items.CustomItemStack;
 import io.github.thebusybiscuit.slimefun4.libraries.dough.protection.Interaction;
 import io.github.thebusybiscuit.slimefun4.utils.ChestMenuUtils;
 
-import me.mrCookieSlime.CSCoreLibPlugin.Configuration.Config;
+import com.xzavier0722.mc.plugin.slimefun4.storage.controller.ASlimefunDataContainer;
 import me.mrCookieSlime.Slimefun.Objects.handlers.BlockTicker;
 import me.mrCookieSlime.Slimefun.api.BlockStorage;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
@@ -82,7 +82,7 @@ public class ElectricJukebox extends AbstractJukeBox {
                     }
 
                     @Override
-                    public void tick(Block block, SlimefunItem slimefunItem, Config data) {
+                    public void tick(Block block, SlimefunItem slimefunItem, ASlimefunDataContainer data) {
                         onTick(block);
                     }
                 },
