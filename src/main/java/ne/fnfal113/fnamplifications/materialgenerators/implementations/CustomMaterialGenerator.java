@@ -40,7 +40,7 @@ import io.github.thebusybiscuit.slimefun4.api.recipes.RecipeType;
 import io.github.thebusybiscuit.slimefun4.libraries.dough.blocks.BlockPosition;
 import io.github.thebusybiscuit.slimefun4.libraries.paperlib.PaperLib;
 
-import me.mrCookieSlime.CSCoreLibPlugin.Configuration.Config;
+import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunBlockData;
 import me.mrCookieSlime.Slimefun.Objects.SlimefunItem.interfaces.InventoryBlock;
 import me.mrCookieSlime.Slimefun.Objects.handlers.BlockTicker;
 
@@ -142,7 +142,7 @@ public class CustomMaterialGenerator extends SlimefunItem implements InventoryBl
                 new BlockTicker() {
                     @Override
                     @ParametersAreNonnullByDefault
-                    public void tick(Block b, SlimefunItem sf, Config data) {
+                    public void tick(Block b, SlimefunItem sf, SlimefunBlockData data) {
                         CustomMaterialGenerator.this.tick(b);
                     }
 

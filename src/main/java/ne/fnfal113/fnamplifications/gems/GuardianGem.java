@@ -17,7 +17,7 @@ import ne.fnfal113.fnamplifications.utils.Utils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.EnderDragon;
-import org.bukkit.entity.Flying;
+import org.bukkit.entity.Ghast;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -63,7 +63,7 @@ public class GuardianGem extends AbstractGem implements OnDamageHandler, GemUpgr
 
         Player player = (Player) event.getEntity();
 
-        if(event.getDamager() instanceof Phantom || event.getDamager() instanceof Flying || event.getDamager() instanceof EnderDragon) {
+        if(event.getDamager() instanceof Phantom || event.getDamager() instanceof Ghast || event.getDamager() instanceof EnderDragon) {
             return;
         } // prevent guardian from attacking flying entities
 

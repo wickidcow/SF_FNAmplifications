@@ -14,7 +14,7 @@ import io.github.thebusybiscuit.slimefun4.libraries.dough.items.CustomItemStack;
 import io.github.thebusybiscuit.slimefun4.libraries.dough.protection.Interaction;
 import io.github.thebusybiscuit.slimefun4.utils.ChestMenuUtils;
 import io.github.thebusybiscuit.slimefun4.utils.compatibility.VersionedParticle;
-import me.mrCookieSlime.CSCoreLibPlugin.Configuration.Config;
+import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunBlockData;
 import me.mrCookieSlime.Slimefun.Objects.SlimefunItem.interfaces.InventoryBlock;
 import me.mrCookieSlime.Slimefun.Objects.handlers.BlockTicker;
 import me.mrCookieSlime.Slimefun.api.BlockStorage;
@@ -150,7 +150,7 @@ public class ElectricBlockBreaker extends SlimefunItem implements InventoryBlock
 
                 @Override
                 @ParametersAreNonnullByDefault
-                public void tick(Block block, SlimefunItem slimefunItem, Config data) {
+                public void tick(Block block, SlimefunItem slimefunItem, SlimefunBlockData data) {
                     onTick(block);
                 }
             },

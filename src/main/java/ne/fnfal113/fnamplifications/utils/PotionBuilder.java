@@ -3,11 +3,7 @@ package ne.fnfal113.fnamplifications.utils;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
-import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionType;
-
-import io.github.thebusybiscuit.slimefun4.api.MinecraftVersion;
-import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
@@ -31,11 +27,7 @@ public class PotionBuilder {
         ItemStack itemStack = new ItemStack(Material.POTION);
         PotionMeta meta = (PotionMeta) itemStack.getItemMeta();
 
-        if(Slimefun.getMinecraftVersion().isAtLeast(MinecraftVersion.MINECRAFT_1_20_5)) {
-            meta.setBasePotionType(potionType);
-        } else {
-            meta.setBasePotionData(new PotionData(getPotionType()));
-        }
+        meta.setBasePotionType(potionType);
         
         itemStack.setItemMeta(meta);
 

@@ -26,7 +26,7 @@ import org.bukkit.entity.Damageable;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.util.Consumer;
+import java.util.function.Consumer;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 

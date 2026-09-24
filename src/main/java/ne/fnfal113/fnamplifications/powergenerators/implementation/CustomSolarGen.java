@@ -15,7 +15,7 @@ import io.github.thebusybiscuit.slimefun4.api.recipes.RecipeType;
 import io.github.thebusybiscuit.slimefun4.core.attributes.EnergyNetProvider;
 import io.github.thebusybiscuit.slimefun4.core.handlers.BlockUseHandler;
 import io.github.thebusybiscuit.slimefun4.utils.LoreBuilder;
-import me.mrCookieSlime.CSCoreLibPlugin.Configuration.Config;
+import com.xzavier0722.mc.plugin.slimefun4.storage.controller.ASlimefunDataContainer;
 
 import ne.fnfal113.fnamplifications.FNAmplifications;
 import ne.fnfal113.fnamplifications.utils.Utils;
@@ -66,7 +66,7 @@ public class CustomSolarGen extends SlimefunItem implements EnergyNetProvider {
         return true;
     }
 
-    public int getGeneratedOutput(Location l, Config data) {
+    public int getGeneratedOutput(Location l, ASlimefunDataContainer data) {
         World world = l.getWorld();
 
         if (world.getEnvironment() != World.Environment.NORMAL) {

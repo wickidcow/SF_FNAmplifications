@@ -150,7 +150,7 @@ public class FnGemDowngrader extends MultiBlockMachine {
         }
 
         Bukkit.getScheduler().runTaskLater(FNAmplifications.getInstance(), () -> {
-            b.getWorld().playEffect(b.getLocation().add(0.5, 0.7, 0.5), Effect.SMOKE, 1);
+            b.getWorld().playEffect(b.getLocation().add(0.5, 0.7, 0.5), ne.fnfal113.fnamplifications.utils.Utils.SMOKE_EFFECT, 1);
             b.getWorld().spawnParticle(Particle.FLASH, b.getLocation().add(0.3, 1.7, 0.45), 2, 0.1, 0.1, 0.1, 0.1);
             b.getWorld().playSound(b.getLocation(), Sound.UI_STONECUTTER_SELECT_RECIPE, 1, 1);
 
@@ -165,7 +165,7 @@ public class FnGemDowngrader extends MultiBlockMachine {
                     b.getWorld().playSound(b.getLocation(), Sound.UI_STONECUTTER_TAKE_RESULT, 1, 1);
 
                     Bukkit.getScheduler().runTaskLater(FNAmplifications.getInstance(), () -> {
-                        b.getWorld().playEffect(b.getLocation().add(0.5, 0.7, 0.5), Effect.SMOKE, 1);
+                        b.getWorld().playEffect(b.getLocation().add(0.5, 0.7, 0.5), ne.fnfal113.fnamplifications.utils.Utils.SMOKE_EFFECT, 1);
                         b.getWorld().spawnParticle(Particle.FLASH, b.getLocation().add(0.35, 0.4, 0.4), 2, 0.1, 0.1, 0.1, 0.1);
                         b.getWorld().spawnParticle(Particle.CLOUD, b.getLocation().add(0.35, 0.5, 0.4), 2, 0.1, 0.1, 0.1, 0.1);
                         b.getWorld().playSound(b.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 1, 1);

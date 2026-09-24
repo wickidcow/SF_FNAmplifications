@@ -12,7 +12,10 @@ import ne.fnfal113.fnamplifications.utils.Utils;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
-import org.bukkit.enchantments.EnchantmentWrapper;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.EquipmentSlotGroup;
+import io.papermc.paper.registry.RegistryAccess;
+import io.papermc.paper.registry.RegistryKey;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.EquipmentSlot;
@@ -20,7 +23,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
-import java.util.UUID;
+import java.util.Locale;
 
 public abstract class AbstractGears extends SlimefunItem {
 
@@ -159,6 +162,45 @@ public abstract class AbstractGears extends SlimefunItem {
      * @param armorLevel the new level of the armor
      * @param p the player who wore the armor
      */
+
+    private static Enchantment resolveEnchantment(String configuredName) {
+        if (configuredName == null) {
+            return null;
+        }
+
+        return RegistryAccess.registryAccess()
+                .getRegistry(RegistryKey.ENCHANTMENT)
+                .get(NamespacedKey.minecraft(configuredName.toLowerCase(Locale.ROOT)));
+    }
+
+    private static Attribute resolveAttribute(String configuredName) {
+        if (configuredName == null) {
+            return null;
+        }
+
+        String key = configuredName.toLowerCase(Locale.ROOT);
+        if (key.startsWith("generic_")) {
+            key = key.substring("generic_".length());
+        }
+
+        return RegistryAccess.registryAccess()
+                .getRegistry(RegistryKey.ATTRIBUTE)
+                .get(NamespacedKey.minecraft(key));
+    }
+
+    private static EquipmentSlotGroup slotGroup(EquipmentSlot slot) {
+        return switch (slot) {
+            case HAND -> EquipmentSlotGroup.MAINHAND;
+            case OFF_HAND -> EquipmentSlotGroup.OFFHAND;
+            case FEET -> EquipmentSlotGroup.FEET;
+            case LEGS -> EquipmentSlotGroup.LEGS;
+            case CHEST -> EquipmentSlotGroup.CHEST;
+            case HEAD -> EquipmentSlotGroup.HEAD;
+            case BODY -> EquipmentSlotGroup.BODY;
+            case SADDLE -> EquipmentSlotGroup.SADDLE;
+        };
+    }
+
     public void upgradeArmor(ItemStack armor, int armorLevel, Player p, EquipmentSlot slot) {
         ItemMeta meta = armor.getItemMeta();
         String levelSection = this.getId() + "." + "level-" + armorLevel;
@@ -168,8 +210,9 @@ public abstract class AbstractGears extends SlimefunItem {
         // add armor enchant
         try {
             if (enchant != null && enchantLevel != 0) {
-                if(EnchantmentWrapper.getByKey(NamespacedKey.minecraft(enchant)) != null) {
-                    meta.addEnchant(EnchantmentWrapper.getByKey(NamespacedKey.minecraft(enchant)), enchantLevel, true);
+                Enchantment enchantment = resolveEnchantment(enchant);
+                if (enchantment != null) {
+                    meta.addEnchant(enchantment, enchantLevel, true);
                 }
             }
         } catch (NullPointerException | IllegalArgumentException e){
@@ -185,15 +228,28 @@ public abstract class AbstractGears extends SlimefunItem {
                     double attributeValue = getConfigManager().getCustomConfig("fn-gear-level-settings").getDouble(levelSection + "." + "bonus-attributes" + "." + "attribute-" + i + "." + "attribute-value");
 
                     if (attribute != null && attributeValue != 0.0) {
-                        if(meta.getAttributeModifiers(getEquipmentSlot()).asMap().containsKey(Attribute.valueOf(attribute))) {
-                            meta.removeAttributeModifier(Attribute.valueOf(attribute));
+                        Attribute resolvedAttribute = resolveAttribute(attribute);
+                        if (resolvedAttribute == null) {
+                            continue;
                         }
 
-                        meta.addAttributeModifier(Attribute.valueOf(attribute), new AttributeModifier(
-                                UUID.randomUUID(),
-                                "generic." + attribute.toLowerCase() + "." + armor.getType().toString().toLowerCase(),
+                        if (meta.getAttributeModifiers(getEquipmentSlot()) != null
+                                && meta.getAttributeModifiers(getEquipmentSlot()).asMap().containsKey(resolvedAttribute)) {
+                            meta.removeAttributeModifier(resolvedAttribute);
+                        }
+
+                        String modifierKey = "gear_"
+                                + getId().toLowerCase(Locale.ROOT)
+                                + "_"
+                                + attribute.toLowerCase(Locale.ROOT)
+                                + "_"
+                                + slot.name().toLowerCase(Locale.ROOT);
+
+                        meta.addAttributeModifier(resolvedAttribute, new AttributeModifier(
+                                new NamespacedKey(FNAmplifications.getInstance(), modifierKey),
                                 attributeValue,
-                                AttributeModifier.Operation.ADD_NUMBER, slot));
+                                AttributeModifier.Operation.ADD_NUMBER,
+                                slotGroup(slot)));
                     }
 
                 }

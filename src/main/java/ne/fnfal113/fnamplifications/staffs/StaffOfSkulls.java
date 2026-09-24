@@ -42,7 +42,6 @@ public class StaffOfSkulls extends AbstractStaff {
             skull.setDirection(player.getLocation().getDirection().clone());
             skull.setGlowing(true);
             skull.setIsIncendiary(true);
-            skull.setBounce(false);
         }
     }
 

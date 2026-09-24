@@ -4,6 +4,8 @@ import ne.fnfal113.fnamplifications.FNAmplifications;
 
 import net.md_5.bungee.api.ChatColor;
 
+import org.bukkit.Effect;
+
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
@@ -21,6 +23,16 @@ import java.util.Locale;
  * @author FN_FAL113
  */
 public class Utils {
+
+    public static final Effect SMOKE_EFFECT = resolveEffect("SMOKE_SHOOT", "SMOKE");
+
+    private static Effect resolveEffect(String currentName, String legacyName) {
+        try {
+            return Effect.valueOf(currentName);
+        } catch (IllegalArgumentException ignored) {
+            return Effect.valueOf(legacyName);
+        }
+    }
 
     public static final DecimalFormat powerFormat = new DecimalFormat("###,###.##",
         DecimalFormatSymbols.getInstance(Locale.ROOT));

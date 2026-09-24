@@ -103,7 +103,7 @@ public class FnScrapRecycler extends MultiBlockMachine {
 
             outputInv.addItem(output);
             p.getWorld().playSound(p.getLocation(), Sound.BLOCK_ANVIL_LAND, 1, 1);
-            p.getWorld().playEffect(b.getLocation(), Effect.SMOKE, 1);
+            p.getWorld().playEffect(b.getLocation(), ne.fnfal113.fnamplifications.utils.Utils.SMOKE_EFFECT, 1);
         } else {
             Slimefun.getLocalization().sendMessage(p, "machines.full-inventory", true);
         }
