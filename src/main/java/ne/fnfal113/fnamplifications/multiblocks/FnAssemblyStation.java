@@ -114,7 +114,7 @@ public class FnAssemblyStation extends MultiBlockMachine {
         }
 
         p.getWorld().playSound(p.getLocation(), Sound.BLOCK_ANVIL_USE, 1, 1);
-        p.getWorld().playEffect(b.getLocation(), Effect.SMOKE, 1);
+        p.getWorld().playEffect(b.getLocation(), ne.fnfal113.fnamplifications.utils.Utils.SMOKE_EFFECT, 1);
     }
 
     protected @Nonnull Inventory createVirtualInventory(@Nonnull Inventory inv) {
