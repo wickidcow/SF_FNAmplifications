@@ -10,7 +10,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
-import org.bukkit.util.Consumer;
+import java.util.function.Consumer;
 
 import java.util.Objects;
 
