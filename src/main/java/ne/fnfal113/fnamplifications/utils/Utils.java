@@ -22,6 +22,16 @@ import java.util.Locale;
  */
 public class Utils {
 
+    public static final Effect SMOKE_EFFECT = resolveEffect("SMOKE_SHOOT", "SMOKE");
+
+    private static Effect resolveEffect(String currentName, String legacyName) {
+        try {
+            return Effect.valueOf(currentName);
+        } catch (IllegalArgumentException ignored) {
+            return Effect.valueOf(legacyName);
+        }
+    }
+
     public static final DecimalFormat powerFormat = new DecimalFormat("###,###.##",
         DecimalFormatSymbols.getInstance(Locale.ROOT));
 
