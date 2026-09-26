@@ -5,7 +5,9 @@ import com.google.common.base.Strings;
 import ne.fnfal113.fnamplifications.utils.WeaponArmorEnum;
 import ne.fnfal113.fnamplifications.utils.Utils;
 
-import org.bukkit.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -47,15 +49,15 @@ public class GearTask {
         this.maxLevel = maxLevel;
     }
 
-    public String getProgressBar(int current, int max, int totalBars, char symbol, ChatColor completedColor,
-        ChatColor notCompletedColor) {
+    public Component getProgressBar(int current, int max, int totalBars, char symbol) {
         float percent = (float) current / max; // divide the current progress to the max value to get the percent
         int progressBars = (int) (totalBars * percent); // multiply the percent value to total progress bars to get current bar amount
 
-        // repeat the progress bar icon with the initial value
-        // then get the difference between the initial value and total progress bars to get not completed bars
-        return Strings.repeat("" + completedColor + symbol, progressBars)
-                + Strings.repeat("" + notCompletedColor + symbol, totalBars - progressBars);
+        return Component.text(Strings.repeat(String.valueOf(symbol), progressBars), NamedTextColor.YELLOW)
+            .append(Component.text(
+                Strings.repeat(String.valueOf(symbol), totalBars - progressBars),
+                NamedTextColor.GRAY
+            ));
     }
 
     public boolean onHit(EntityDamageByEntityEvent event, Player p, ItemStack item) {
@@ -69,7 +71,7 @@ public class GearTask {
 
         if(isMaxLevel(armorLevel)){
             if(!uuidList.contains(p.getUniqueId())) {
-                Utils.sendMessage(meta.getDisplayName() + " has reached max level!", p);
+                Utils.sendMessage(Utils.legacyString(meta.displayName()) + " has reached max level!", p);
 
                 uuidList.add(p.getUniqueId());
             }
@@ -79,7 +81,11 @@ public class GearTask {
 
         progress.set(getStorageKey(), PersistentDataType.INTEGER, xpAmountIncremented);
 
-        List<String> lore = meta.getLore();
+        List<Component> lore = meta.lore();
+
+        if (lore == null) {
+            return false;
+        }
 
         if (xpAmountIncremented >= 0) {
            updateArmour(armorLevel, xpAmountIncremented, maxXpReq, item, meta, lore);
@@ -92,25 +98,28 @@ public class GearTask {
         return false;
     }
 
-    public void updateArmour(int armorLevel, int xpAmountIncremented, int maxXpReq, ItemStack item, ItemMeta meta, List<String> lore) {
-        lore.set(7, Utils.colorTranslator("&eLevel: ") + armorLevel);
-        lore.set(8, Utils.colorTranslator("&eProgress:"));
-        lore.set(9, Utils.colorTranslator("&7[&r" + getProgressBar(xpAmountIncremented, maxXpReq, 10, '■', ChatColor.YELLOW, ChatColor.GRAY) + "&7]"));
+    public void updateArmour(int armorLevel, int xpAmountIncremented, int maxXpReq, ItemStack item, ItemMeta meta, List<Component> lore) {
+        lore.set(7, Component.text("Level: " + armorLevel, NamedTextColor.YELLOW));
+        lore.set(8, Component.text("Progress:", NamedTextColor.YELLOW));
+        lore.set(9, Component.text("[", NamedTextColor.GRAY)
+            .append(getProgressBar(xpAmountIncremented, maxXpReq, 10, '■'))
+            .append(Component.text("]", NamedTextColor.GRAY)));
 
         if(WeaponArmorEnum.CHESTPLATE.isTagged(getItemStack().getType()) && armorLevel == 30 && xpAmountIncremented == 1) {
-            lore.add(10,"");
-            lore.add(11, ChatColor.RED + "◬◬◬◬◬◬| " + ChatColor.LIGHT_PURPLE + ""
-                    + ChatColor.BOLD + "Effects " + ChatColor.GOLD + "|◬◬◬◬◬◬");
-            lore.add(12, ChatColor.GREEN + "Permanent Saturation");
+            lore.add(10, Component.empty());
+            lore.add(11, Component.text("◬◬◬◬◬◬| ", NamedTextColor.RED)
+                .append(Component.text("Effects ", NamedTextColor.LIGHT_PURPLE, TextDecoration.BOLD))
+                .append(Component.text("|◬◬◬◬◬◬", NamedTextColor.GOLD)));
+            lore.add(12, Component.text("Permanent Saturation", NamedTextColor.GREEN));
         }
 
-        meta.setLore(lore);
+        meta.lore(lore);
         item.setItemMeta(meta);
     }
 
-    public boolean levelUpArmour(int armorLevel, int xpAmountIncremented, int maxXpReq, ItemStack item, ItemMeta meta, PersistentDataContainer progress, List<String> lore, Player p) {
+    public boolean levelUpArmour(int armorLevel, int xpAmountIncremented, int maxXpReq, ItemStack item, ItemMeta meta, PersistentDataContainer progress, List<Component> lore, Player p) {
         if(isMaxLevel(armorLevel)) {
-            Utils.sendMessage(meta.getDisplayName() + " has reached max level!", p);
+            Utils.sendMessage(Utils.legacyString(meta.displayName()) + " has reached max level!", p);
 
             return false;
         }
@@ -124,11 +133,13 @@ public class GearTask {
         // increase armor pdc max xp requirement
         progress.set(getStorageKey3(), PersistentDataType.INTEGER, maxXpReq + getIncrementProgress());
 
-        lore.set(7, Utils.colorTranslator("&eLevel: ") + currentArmorLevel);
-        lore.set(8, Utils.colorTranslator("&eProgress:"));
-        lore.set(9, Utils.colorTranslator("&7[&r" + getProgressBar(xpAmountIncremented, maxXpReq, 10, '■', ChatColor.YELLOW, ChatColor.GRAY) + "&7]"));
+        lore.set(7, Component.text("Level: " + currentArmorLevel, NamedTextColor.YELLOW));
+        lore.set(8, Component.text("Progress:", NamedTextColor.YELLOW));
+        lore.set(9, Component.text("[", NamedTextColor.GRAY)
+            .append(getProgressBar(xpAmountIncremented, maxXpReq, 10, '■'))
+            .append(Component.text("]", NamedTextColor.GRAY)));
 
-        meta.setLore(lore);
+        meta.lore(lore);
         item.setItemMeta(meta);
 
         sendLevelUpMessage(p);
@@ -141,7 +152,7 @@ public class GearTask {
     }
 
     public void sendLevelUpMessage(Player p){
-        Utils.sendMessage(getItemStack().getItemMeta().getDisplayName()  + " leveled up!", p);
+        Utils.sendMessage(Utils.legacyString(getItemStack().getItemMeta().displayName()) + " leveled up!", p);
 
         p.playSound(p.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1 , 1);
     }

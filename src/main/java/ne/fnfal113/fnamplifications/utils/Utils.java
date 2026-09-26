@@ -2,7 +2,8 @@ package ne.fnfal113.fnamplifications.utils;
 
 import ne.fnfal113.fnamplifications.FNAmplifications;
 
-import net.md_5.bungee.api.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 import org.bukkit.Effect;
 
@@ -24,6 +25,11 @@ import java.util.Locale;
  */
 public class Utils {
 
+    private static final LegacyComponentSerializer LEGACY_AMPERSAND = LegacyComponentSerializer.legacyAmpersand();
+    private static final LegacyComponentSerializer LEGACY_SECTION = LegacyComponentSerializer.legacySection();
+    private static final char LEGACY_COLOR_CHAR = '\u00A7';
+    private static final String LEGACY_COLOR_CODES = "0123456789AaBbCcDdEeFfKkLlMmNnOoRrXx";
+
     public static final Effect SMOKE_EFFECT = resolveEffect("SMOKE_SHOOT", "SMOKE");
 
     private static Effect resolveEffect(String currentName, String legacyName) {
@@ -38,7 +44,30 @@ public class Utils {
         DecimalFormatSymbols.getInstance(Locale.ROOT));
 
     public static String colorTranslator(String strings) {
-        return ChatColor.translateAlternateColorCodes('&', strings);
+        if (strings == null) {
+            return null;
+        }
+
+        char[] chars = strings.toCharArray();
+        for (int i = 0; i < chars.length - 1; i++) {
+            if (chars[i] == '&' && LEGACY_COLOR_CODES.indexOf(chars[i + 1]) >= 0) {
+                chars[i] = LEGACY_COLOR_CHAR;
+                chars[i + 1] = Character.toLowerCase(chars[i + 1]);
+            }
+        }
+        return new String(chars);
+    }
+
+    public static Component colorComponent(String value) {
+        return LEGACY_AMPERSAND.deserialize(value);
+    }
+
+    public static Component legacyComponent(String value) {
+        return LEGACY_SECTION.deserialize(value);
+    }
+
+    public static String legacyString(Component component) {
+        return component == null ? "" : LEGACY_SECTION.serialize(component);
     }
 
     public static void sendMessage(String message, LivingEntity livingEntity) {
@@ -87,17 +116,23 @@ public class Utils {
      */
     public static void setGemTierLore(ItemStack itemStack, String configSection, String configSectionSetting, String stringToReplace, String color, String suffix, int tier, String fileName) {
         ItemMeta meta = itemStack.getItemMeta();
-        List<String> lore = meta.getLore();
+        List<Component> lore = meta.lore();
+
+        if (lore == null) {
+            return;
+        }
 
         for(int i = 0; i < lore.size(); i++) {
-            if(lore.get(i).contains(Utils.colorTranslator(color + stringToReplace))){
-                String line = lore.get(i).replace(Utils.colorTranslator(color + stringToReplace),
-                        Utils.colorTranslator(color + (FNAmplifications.getInstance().getConfigManager().getCustomConfig(fileName).getInt(configSection + "." + configSectionSetting) / tier--) + suffix));
-                lore.set(i, line);
+            String legacyLine = legacyString(lore.get(i));
+            String target = colorTranslator(color + stringToReplace);
+            if(legacyLine.contains(target)){
+                String line = legacyLine.replace(target,
+                        colorTranslator(color + (FNAmplifications.getInstance().getConfigManager().getCustomConfig(fileName).getInt(configSection + "." + configSectionSetting) / tier--) + suffix));
+                lore.set(i, legacyComponent(line));
             }
         }
 
-        meta.setLore(lore);
+        meta.lore(lore);
         itemStack.setItemMeta(meta);
     }
 
@@ -113,17 +148,23 @@ public class Utils {
      */
     public static void setLoreByConfigValue(@Nonnull ItemStack itemStack, String configSection, String configSectionSetting, String stringToReplace, String color, String suffix, String fileName){
         ItemMeta meta = itemStack.getItemMeta();
-        List<String> lore = meta.getLore();
+        List<Component> lore = meta.lore();
+
+        if (lore == null) {
+            return;
+        }
 
         for(int i = 0; i < lore.size(); i++){
-            if(lore.get(i).contains(Utils.colorTranslator(color + stringToReplace))){
-                String line = lore.get(i).replace(Utils.colorTranslator(color + stringToReplace),
-                        Utils.colorTranslator(color + FNAmplifications.getInstance().getConfigManager().getCustomConfig(fileName).get(configSection + "." + configSectionSetting) + suffix));
-                lore.set(i, line);
+            String legacyLine = legacyString(lore.get(i));
+            String target = colorTranslator(color + stringToReplace);
+            if(legacyLine.contains(target)){
+                String line = legacyLine.replace(target,
+                        colorTranslator(color + FNAmplifications.getInstance().getConfigManager().getCustomConfig(fileName).get(configSection + "." + configSectionSetting) + suffix));
+                lore.set(i, legacyComponent(line));
             }
         }
 
-        meta.setLore(lore);
+        meta.lore(lore);
         itemStack.setItemMeta(meta);
     }
 
@@ -138,14 +179,19 @@ public class Utils {
      * @param suffix the end string of the pdc value (units, percent, etc)
      */
     public static void setLoreByPdc(ItemStack itemStack, ItemMeta meta, String value, String prefix, String color, String color2, String suffix){
-        List<String> lore = meta.getLore();
+        List<Component> lore = meta.lore();
+        if (lore == null) {
+            return;
+        }
+
         for(int i = 0; i < lore.size(); i++){
-            if(lore.get(i).contains(Utils.colorTranslator(color + prefix))){
-                lore.set(i, Utils.colorTranslator(color + prefix + color2 + value + suffix));
+            String legacyLine = legacyString(lore.get(i));
+            if(legacyLine.contains(Utils.colorTranslator(color + prefix))){
+                lore.set(i, colorComponent(color + prefix + color2 + value + suffix));
             }
         }
 
-        meta.setLore(lore);
+        meta.lore(lore);
         itemStack.setItemMeta(meta);
     }
 
