@@ -4,6 +4,7 @@ import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
 
 import ne.fnfal113.fnamplifications.gears.abstracts.AbstractGears;
 import ne.fnfal113.fnamplifications.utils.Utils;
+import net.kyori.adventure.text.Component;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -56,7 +57,10 @@ public class GearCommands implements TabExecutor {
                     if (itemStack != null) {
                         SlimefunItem item = SlimefunItem.getByItem(itemStack);
                         ItemMeta meta = itemStack.getItemMeta();
-                        List<String> lore = meta.getLore();
+                        List<Component> lore = meta.lore();
+                        if (lore == null) {
+                            continue;
+                        }
                         PersistentDataContainer progress = meta.getPersistentDataContainer();
 
                         if(item instanceof AbstractGears) {
