@@ -65,7 +65,7 @@ public class ConfigManager {
             // byte stream => char stream => json
             InputStream resource = FNAmplifications.class.getResourceAsStream("/json/" + jsonName + ".json");
 
-            return new JsonParser().parse(new InputStreamReader(resource)).getAsJsonObject();
+            return JsonParser.parseReader(new InputStreamReader(resource)).getAsJsonObject();
         } catch (JsonParseException | NullPointerException e) {
             e.printStackTrace();
 
