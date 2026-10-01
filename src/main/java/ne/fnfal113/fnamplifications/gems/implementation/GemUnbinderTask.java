@@ -3,10 +3,12 @@ package ne.fnfal113.fnamplifications.gems.implementation;
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
 import ne.fnfal113.fnamplifications.gems.RetaliateGem;
 import ne.fnfal113.fnamplifications.gems.abstracts.AbstractGem;
+import ne.fnfal113.fnamplifications.gems.abstracts.AbstractGemUnbinder;
 import ne.fnfal113.fnamplifications.utils.Keys;
 import ne.fnfal113.fnamplifications.utils.Utils;
-import org.bukkit.Bukkit;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -28,8 +30,11 @@ public class GemUnbinderTask {
         this.itemInOffhand = itemInOffhand;
     }
 
-    @SuppressWarnings("ConstantConditions")
     public void showAvailableGemsUI() {
+        if (getItemInOffhand() == null || !getItemInOffhand().hasItemMeta()) {
+            Utils.sendMessage("Offhand item doesn't have bounded gems!", getPlayer());
+            return;
+        }
         PersistentDataContainer pdc = getItemInOffhand().getItemMeta().getPersistentDataContainer();
         if(pdc.isEmpty()) {
             Utils.sendMessage("Offhand item doesn't have bounded gems!", getPlayer());
@@ -46,33 +51,59 @@ public class GemUnbinderTask {
             Utils.sendMessage("Offhand item doesn't have bounded gems!", getPlayer());
             return;
         }
-        Inventory inventory = Bukkit.createInventory(null, 9, Utils.colorTranslator("&cSelect a gem to unbind"));
+        Inventory inventory = Bukkit.createInventory(null, 9,
+                Component.text("Select a gem to unbind", NamedTextColor.RED));
         for (ItemStack gems: gemArray) inventory.addItem(gems);
         getPlayer().openInventory(inventory);
         getPlayer().playSound(player.getLocation(), Sound.ENTITY_ILLUSIONER_PREPARE_MIRROR, 1.0F, 1.0F);
     }
 
-    @SuppressWarnings("ConstantConditions")
     public void unbindGem(SlimefunItem gem, int chance) {
-        getPlayer().getInventory().getItemInMainHand().setAmount(0);
-        if(ThreadLocalRandom.current().nextInt(100) <= chance) {
-            ItemMeta meta = getItemInOffhand().getItemMeta();
-            PersistentDataContainer pdc = meta.getPersistentDataContainer();
-            NamespacedKey socketAmountKey = Keys.createKey(getItemInOffhand().getType().toString().toLowerCase() + "_socket_amount");
+        ItemStack target = getPlayer().getInventory().getItemInOffHand();
+        ItemStack tool = getPlayer().getInventory().getItemInMainHand();
+        SlimefunItem held = SlimefunItem.getByItem(tool);
+        if (!(gem instanceof AbstractGem) || !(held instanceof AbstractGemUnbinder unbinder)
+                || unbinder.getChance() != chance || target.isEmpty() || tool.isEmpty()
+                || getItemInOffhand() == null || !target.equals(getItemInOffhand())) {
+            Utils.sendMessage("The selected gem or held items changed. Reopen the unbinder to try again.", getPlayer());
+            return;
+        }
+
+        final ItemStack originalTarget;
+        final ItemStack originalTool;
+        final ItemMeta staged;
+        try {
+            originalTarget = target.clone();
+            originalTool = tool.clone();
+            NamespacedKey socketKey = Keys.createKey(target.getType().toString().toLowerCase() + "_socket_amount");
             NamespacedKey gemKey = Keys.createKey(gem.getId().toLowerCase());
-            List<Component> lore = meta.lore();
-            removeOtherPdc(pdc, gem);
-            pdc.remove(gemKey);
-            pdc.set(socketAmountKey, PersistentDataType.INTEGER, pdc.get(socketAmountKey, PersistentDataType.INTEGER) - 1);
-            boolean lastGem = pdc.get(socketAmountKey, PersistentDataType.INTEGER) == 0;
-            meta.lore(GemLore.unbound(lore, Utils.colorTranslator(gem.getItemName()), lastGem));
-            if (lastGem) pdc.remove(socketAmountKey);
-            getItemInOffhand().setItemMeta(meta);
-            Utils.sendMessage("Successfully removed selected gem!", getPlayer());
-            getPlayer().playSound(getPlayer().getLocation(), Sound.ENTITY_VILLAGER_WORK_WEAPONSMITH, 1.0F, 1.0F);
-        } else {
-            Utils.sendMessage("Failed to unbind the gem from the item!", getPlayer());
-            getPlayer().playSound(getPlayer().getLocation(), Sound.ENTITY_ZOMBIE_INFECT, 1.0F, 1.0F);
+            staged = GemUnbindOperation.prepare(originalTarget.getItemMeta(), socketKey, gemKey,
+                    gem.getId(), Utils.colorTranslator(gem.getItemName()), data -> removeOtherPdc(data, gem));
+        } catch (RuntimeException failure) {
+            Utils.sendMessage("Saved gem data could not be prepared. No unbinding tool was consumed; ask a server owner to inspect the item.", getPlayer());
+            Bukkit.getLogger().log(java.util.logging.Level.WARNING,
+                    "[FNAmplifications] Refused unbinding before consuming a tool; existing item data retained", failure);
+            return;
+        }
+
+        GemUnbindOperation.Result result = GemUnbindOperation.attempt(staged, chance,
+                () -> ThreadLocalRandom.current().nextInt(100),
+                () -> getPlayer().getInventory().getItemInOffHand().equals(originalTarget)
+                        && getPlayer().getInventory().getItemInMainHand().equals(originalTool),
+                target::setItemMeta,
+                // Preserve the established whole-stack cost for an accepted attempt.
+                () -> tool.setAmount(0));
+        switch (result) {
+            case SUCCESS -> {
+                Utils.sendMessage("Successfully removed selected gem!", getPlayer());
+                getPlayer().playSound(getPlayer().getLocation(), Sound.ENTITY_VILLAGER_WORK_WEAPONSMITH, 1.0F, 1.0F);
+            }
+            case FAILED_ROLL -> {
+                Utils.sendMessage("Failed to unbind the gem from the item!", getPlayer());
+                getPlayer().playSound(getPlayer().getLocation(), Sound.ENTITY_ZOMBIE_INFECT, 1.0F, 1.0F);
+            }
+            case STALE_ITEMS, REJECTED_METADATA -> Utils.sendMessage(
+                    "Unbinding was not applied and no tool was consumed. Reopen the unbinder after checking the item.", getPlayer());
         }
     }
 

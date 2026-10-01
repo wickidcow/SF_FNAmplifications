@@ -14,74 +14,78 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 public class GemUnbinderListener implements Listener {
-
     private final Map<UUID, Integer> unbindChanceMap = new HashMap<>();
 
-    /**
-     * On gem item to unbind click, player selects a gem to unbind from the available gems inventory UI
-     */
+    /** Select a displayed gem only while its unbinder session and tool remain valid. */
     @EventHandler
     public void onClick(InventoryClickEvent event) {
         String title = VersionedClass.invoke(event.getView(), "getTitle").toString();
+        if (!title.equals(Utils.colorTranslator("&cSelect a gem to unbind"))) return;
+        // Cancel first: malformed data must never allow a displayed gem to move into inventory.
+        event.setCancelled(true);
+        if (event.getClickedInventory() != event.getView().getTopInventory()
+                || !(event.getWhoClicked() instanceof Player player)) return;
+        SlimefunItem gem = SlimefunItem.getByItem(event.getCurrentItem());
+        if (!(gem instanceof AbstractGem)) return;
 
-        if(title.equals(Utils.colorTranslator("&cSelect a gem to unbind"))) {
-            if(event.getClickedInventory() != null && event.getClickedInventory().getHolder() instanceof Player) {
-                event.setCancelled(true);
-
+        Integer chance = getUnbindChanceMap().remove(player.getUniqueId());
+        SlimefunItem held = SlimefunItem.getByItem(player.getInventory().getItemInMainHand());
+        try {
+            if (chance == null || !(held instanceof AbstractGemUnbinder unbinder)
+                    || unbinder.getChance() != chance) {
+                Utils.sendMessage("The unbinder selection expired or the held tool changed. Reopen it to try again.", player);
                 return;
             }
-
-            Optional<SlimefunItem> gem = Optional.ofNullable(SlimefunItem.getByItem(event.getCurrentItem()));
-            Player player = (Player) event.getWhoClicked();
-
-            if(gem.isPresent() && gem.get() instanceof AbstractGem) {
-                new GemUnbinderTask(player, player.getInventory().getItemInOffHand())
-                        .unbindGem(gem.get(), getUnbindChanceMap().get(player.getUniqueId()));
-                
-                event.getWhoClicked().closeInventory(); // close available gems user interface
-            }
-
-            event.setCancelled(true);
+            new GemUnbinderTask(player, player.getInventory().getItemInOffHand()).unbindGem(gem, chance);
+        } finally {
+            player.closeInventory();
         }
     }
 
-    /**
-     * On gem unbinder item right click, if conditions are sufficed then show available gems to unbind inventory UI 
-     */
+    /** Open the existing gem selector without spending the tool. */
     @EventHandler
     public void onRightClick(PlayerInteractEvent event) {
         if(event.getAction() != Action.RIGHT_CLICK_AIR && event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
-
         Player player = event.getPlayer();
         SlimefunItem slimefunItem = SlimefunItem.getByItem(player.getInventory().getItemInMainHand());
-
-        if(slimefunItem instanceof AbstractGemUnbinder) {
-            event.setUseItemInHand(Event.Result.DENY); // prevent item from being consumed
-            player.updateInventory(); // refresh player inventory to prevent visual bugs
-
+        if(slimefunItem instanceof AbstractGemUnbinder unbinder) {
+            event.setUseItemInHand(Event.Result.DENY);
+            player.updateInventory();
             if(player.getInventory().getItemInOffHand().getType() == Material.AIR) {
                 Utils.sendMessage("You have no item in your offhand that contain bounded gems!", player);
-                
                 return;
             }
-            
-            getUnbindChanceMap().put(player.getUniqueId(), ((AbstractGemUnbinder) slimefunItem).getChance());
-
+            getUnbindChanceMap().remove(player.getUniqueId());
             new GemUnbinderTask(player, player.getInventory().getItemInOffHand()).showAvailableGemsUI();
+            // Opening a replacement view closes the old one first. Record the new
+            // chance afterwards so the old close event cannot clear the new session.
+            if (VersionedClass.invoke(player.getOpenInventory(), "getTitle").toString()
+                    .equals(Utils.colorTranslator("&cSelect a gem to unbind"))) {
+                getUnbindChanceMap().put(player.getUniqueId(), unbinder.getChance());
+            }
         }
+    }
 
+    @EventHandler
+    public void onClose(InventoryCloseEvent event) {
+        getUnbindChanceMap().remove(event.getPlayer().getUniqueId());
+    }
+
+    @EventHandler
+    public void onQuit(PlayerQuitEvent event) {
+        getUnbindChanceMap().remove(event.getPlayer().getUniqueId());
     }
 
     public Map<UUID, Integer> getUnbindChanceMap() {
         return unbindChanceMap;
     }
-
 }
