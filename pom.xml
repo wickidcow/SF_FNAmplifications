@@ -50,6 +50,8 @@
                 <groupId>org.apache.maven.plugins</groupId><artifactId>maven-compiler-plugin</artifactId><version>3.14.1</version>
                 <configuration>
                     <release>${maven.compiler.release}</release>
+                    <!-- Use Maven's supported alternate javac bridge for the Java 25/Paper API build. -->
+                    <forceLegacyJavacApi>true</forceLegacyJavacApi>
                     <encoding>UTF-8</encoding>
                     <showDeprecation>true</showDeprecation>
                     <compilerArgs>
