@@ -13,8 +13,8 @@ permissions:
   contents: write
 
 env:
-  RELEASE_VERSION: "4.2.7"
-  OUTPUT_NAME: "SF_FNAmplifications4.2.7.jar"
+  RELEASE_VERSION: "4.2.8"
+  OUTPUT_NAME: "SF_FNAmplifications4.2.8.jar"
 
 jobs:
   compatibility:
@@ -73,7 +73,9 @@ jobs:
       - name: Publish Slimefun United API locally
         if: matrix.slimefun == 'united'
         working-directory: .deps/Slimefun-United
-        run: mvn -B -DskipTests install
+        run: |
+          chmod +x mvnw
+          ./mvnw -B -DskipTests install
 
       - name: Restore Java 25 for FN Amplifications validation
         if: matrix.slimefun == 'united'
@@ -93,7 +95,7 @@ jobs:
             echo 'artifact=Slimefun' >> "$GITHUB_OUTPUT"
             echo 'version=FNAMPLIFICATIONS-LEGACY-SNAPSHOT' >> "$GITHUB_OUTPUT"
           else
-            VERSION="$(mvn -q -f .deps/Slimefun-United/pom.xml help:evaluate -Dexpression=project.version -DforceStdout)"
+            VERSION="$(cd .deps/Slimefun-United && ./mvnw -q help:evaluate -Dexpression=project.version -DforceStdout)"
             echo 'group=io.github.slimefun_united' >> "$GITHUB_OUTPUT"
             echo 'artifact=slimefun-united' >> "$GITHUB_OUTPUT"
             echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
@@ -145,7 +147,7 @@ jobs:
           unzip -p "dist/${OUTPUT_NAME}" plugin.yml | grep -Eq "^version: '?${RELEASE_VERSION}'?$"
           python3 - <<'PY'
           import pathlib, struct, zipfile
-          jar = pathlib.Path('dist/SF_FNAmplifications4.2.7.jar')
+          jar = pathlib.Path('dist/SF_FNAmplifications4.2.8.jar')
           max_major = 0
           with zipfile.ZipFile(jar) as zf:
               for name in zf.namelist():
@@ -169,7 +171,7 @@ jobs:
           if-no-files-found: error
 
   release:
-    name: Publish 4.2.7 raw JAR
+    name: Publish 4.2.8 raw JAR
     needs: compatibility
     if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/') || github.ref_name == github.event.repository.default_branch
     runs-on: ubuntu-latest
@@ -193,7 +195,7 @@ jobs:
           TAG="v${RELEASE_VERSION}"
           JAR="dist/${OUTPUT_NAME}"
           test -s "$JAR"
-          NOTES="FNAmplifications 4.2.7 keeps the Paper 26.2 startup/VersionedMaterial hotfix and Doctor quiver reconciliation, restores a Paper 1.21.11 / Java 21 universal release baseline, and adds explicit Paper 26.3 alpha compatibility validation. Slimefun Legacy remains primary and Slimefun United remains compile-validated."
+          NOTES="FNAmplifications 4.2.8 prevents inventory drags from inserting player items into the temporary Gem Unbinder selector, while preserving the existing click handling, unbind chances, metadata rules, and whole-stack accepted-attempt tool cost. It retains the Paper 1.21.11 / Java 21 universal release baseline plus Paper 26.2 and 26.3 validation. Slimefun Legacy remains primary and Slimefun United remains compile-validated."
           if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             gh release upload "$TAG" "$JAR" --clobber --repo "$GITHUB_REPOSITORY"
             gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --title "SF_FNAmplifications ${RELEASE_VERSION}" --notes "$NOTES"
