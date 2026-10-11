@@ -15,11 +15,13 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 public class GemUnbinderListener implements Listener {
@@ -49,6 +51,25 @@ public class GemUnbinderListener implements Listener {
         } finally {
             player.closeInventory();
         }
+    }
+
+    /** Prevent drag operations from inserting items into the temporary gem selector. */
+    @EventHandler
+    public void onDrag(InventoryDragEvent event) {
+        String title = VersionedClass.invoke(event.getView(), "getTitle").toString();
+        if (!title.equals(Utils.colorTranslator("&cSelect a gem to unbind"))) return;
+
+        if (dragTouchesTopInventory(event.getRawSlots(), event.getView().getTopInventory().getSize())) {
+            event.setCancelled(true);
+        }
+    }
+
+    static boolean dragTouchesTopInventory(Set<Integer> rawSlots, int topSize) {
+        if (topSize < 0) throw new IllegalArgumentException("Top inventory size cannot be negative");
+        for (int rawSlot : rawSlots) {
+            if (rawSlot >= 0 && rawSlot < topSize) return true;
+        }
+        return false;
     }
 
     /** Open the existing gem selector without spending the tool. */
