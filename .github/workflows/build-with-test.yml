@@ -73,7 +73,9 @@ jobs:
       - name: Publish Slimefun United API locally
         if: matrix.slimefun == 'united'
         working-directory: .deps/Slimefun-United
-        run: mvn -B -DskipTests install
+        run: |
+          chmod +x mvnw
+          ./mvnw -B -DskipTests install
 
       - name: Restore Java 25 for FN Amplifications validation
         if: matrix.slimefun == 'united'
@@ -93,7 +95,7 @@ jobs:
             echo 'artifact=Slimefun' >> "$GITHUB_OUTPUT"
             echo 'version=FNAMPLIFICATIONS-LEGACY-SNAPSHOT' >> "$GITHUB_OUTPUT"
           else
-            VERSION="$(mvn -q -f .deps/Slimefun-United/pom.xml help:evaluate -Dexpression=project.version -DforceStdout)"
+            VERSION="$(cd .deps/Slimefun-United && ./mvnw -q help:evaluate -Dexpression=project.version -DforceStdout)"
             echo 'group=io.github.slimefun_united' >> "$GITHUB_OUTPUT"
             echo 'artifact=slimefun-united' >> "$GITHUB_OUTPUT"
             echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
